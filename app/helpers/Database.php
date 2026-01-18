@@ -1,21 +1,18 @@
 <?php
 
-namespace App\Helpers;
-
-use PDO;
-use PDOException;
-
 class Database
 {
-    private static ?Database $instance = null;
-    private PDO $connection;
+    private static ?PDO $instance = null;
 
-    private function __construct()
+    private function __construct() {}
+    private function __clone() {}
+
+    public static function getInstance(): PDO
     {
-        $config = require __DIR__ . '/../Config/database.php';
+        if (self::$instance === null) {
+            $config = require __DIR__ . '/../config/database.php';
 
-        try {
-            $this->connection = new PDO(
+            self::$instance = new PDO(
                 "mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8",
                 $config['user'],
                 $config['password'],
@@ -24,22 +21,8 @@ class Database
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
                 ]
             );
-        } catch (PDOException $e) {
-            die('Database connection error');
-        }
-    }
-
-    public static function getInstance(): Database
-    {
-        if (self::$instance === null) {
-            self::$instance = new Database();
         }
 
         return self::$instance;
-    }
-
-    public function getConnection(): PDO
-    {
-        return $this->connection;
     }
 }
